@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	package="com.chainsaw.clearweather"
+	android:installLocation="internalOnly"
+	android:versionCode="1"
+	android:versionName="1.0" >
+
+	<uses-sdk
+		android:minSdkVersion="11"
+		android:targetSdkVersion="18" />
+
+	<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+	<uses-permission android:name="android.permission.INTERNET" />
+
+	<application
+		android:allowBackup="true"
+		android:icon="@drawable/ic_launcher"
+		android:label="@string/app_name"
+		android:theme="@style/AppTheme" >
+		<activity
+			android:name="ClearWeatherSetup"
+			android:label="@string/setup_dialog_name"
+			android:theme="@android:style/Theme.Holo.Light.Dialog" >
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+			</intent-filter>
+		</activity>
+
+		<receiver
+			android:name="ClearWeatherWidget"
+			android:icon="@drawable/ic_launcher"
+			android:label="@string/app_name" >
+			<intent-filter>
+				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+			</intent-filter>
+
+			<meta-data
+				android:name="android.appwidget.provider"
+				android:resource="@xml/clearweather_widget" />
+		</receiver>
+		<receiver android:name="AlarmReceiver"></receiver>
+		<service android:name="FetchService"></service>
+	</application>
+
+</manifest>

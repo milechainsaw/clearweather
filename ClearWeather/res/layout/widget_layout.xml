@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="match_parent"
+	android:background="@drawable/background"
+	android:orientation="horizontal"
+	android:paddingBottom="3dp"
+	android:paddingLeft="10dp"
+	android:paddingRight="10dp"
+	android:paddingTop="3dp" >
+
+	<TextView
+		android:id="@+id/humidity"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentRight="true"
+		android:layout_centerVertical="true"
+		android:text="100%"
+		android:textColor="#ffffffff"
+		android:textSize="40sp"
+		android:typeface="sans" />
+
+	<TextView
+		android:id="@+id/temp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_centerVertical="true"
+		android:text="99C"
+		android:textColor="#ffffffff"
+		android:textSize="40sp"
+		android:typeface="sans" />
+
+	<TextView
+		android:id="@+id/location"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toLeftOf="@+id/humidity"
+		android:layout_toRightOf="@+id/temp"
+		android:text="location"
+		android:gravity="center"
+		android:textColor="#ffffffff" />
+
+</RelativeLayout>
