@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 public class FetchService extends Service {
@@ -20,19 +19,22 @@ public class FetchService extends Service {
 
 		Bundle extras = intent.getExtras();
 		if (extras != null)
-			widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+			widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					AppWidgetManager.INVALID_APPWIDGET_ID);
 		else
-			widgetId = 0;
-
+			widgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
 		LocationData loc = new LocationData(context);
 		Location location = loc.getData();
 
 		WeatherDataListener listener = new WeatherDataListener() {
 			@Override
 			public void onDataReady(WeatherData weatherData) {
-				String temperature = "n/a";
-				String humidity = "n/a";
-				String name = "n/a";
+
+				RemoteViews remote = new RemoteViews(context.getPackageName(),
+						R.layout.widget_layout);
+				String temperature = "18°";
+				String humidity = "55%";
+				String name = "Here";
 				String weatherType = "";
 
 				AppWidgetManager appWidgetManager = AppWidgetManager
@@ -53,23 +55,28 @@ public class FetchService extends Service {
 				humidity = String.valueOf(weatherData.getHumidity()) + "%";
 				name = weatherData.getCityName();
 
-				RemoteViews remote = new RemoteViews(context.getPackageName(),
-						R.layout.widget_layout);
-				remote.setTextViewText(R.id.temp, temperature);
-				remote.setTextViewText(R.id.humidity, humidity);
-				remote.setTextViewText(R.id.location, name);
-				remote.setTextViewText(R.id.weather, weatherType);
-				if (widgetId != 0) {
+				if (weatherData.isDataAvailable()) {
+					remote.setTextViewText(R.id.temp, temperature);
+					remote.setTextViewText(R.id.humidity, humidity);
+					remote.setTextViewText(R.id.location, name);
+					remote.setTextViewText(R.id.weather, weatherType);
+				} else {
+					remote.setTextViewText(R.id.temp, temperature);
+					remote.setTextViewText(R.id.humidity, humidity);
+					remote.setTextViewText(R.id.location, name);
+					remote.setTextViewText(R.id.weather, weatherData.getType());
+				}
+
+				if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
 					appWidgetManager.updateAppWidget(widgetId, remote);
 					stopSelf(startId);
-					Log.i("Service",
-							"Should update..." + context.getPackageName()
-									+ " temp:" + String.valueOf(temperature));
-
 				}
+
 			}
 		};
-		OpenWeatherAPI weatherData = new OpenWeatherAPI();
+
+		OpenWeatherAPI weatherData = new OpenWeatherAPI(
+				this.getApplicationContext());
 		weatherData.setListener(listener);
 		weatherData.getData(location);
 

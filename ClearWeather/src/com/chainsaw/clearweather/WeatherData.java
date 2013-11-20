@@ -7,13 +7,15 @@ public class WeatherData {
 	private String cityName;
 	private String type;
 	private long timestamp = 0;
+	private boolean dataAvailable;
 	private long TIME_VALID = 600000;
 
 	public WeatherData() {
 	}
 
-	public WeatherData(int temperature, int humid, String name,
-			String weatherType) {
+	public WeatherData(boolean dataPresent, int temperature, int humid,
+			String name, String weatherType) {
+		this.dataAvailable = dataPresent;
 		this.humidity = humid;
 		this.temp = temperature;
 		this.cityName = name;
@@ -49,5 +51,18 @@ public class WeatherData {
 
 	public String getType() {
 		return type;
+	}
+
+	public boolean isDataAvailable() {
+		return dataAvailable;
+	}
+
+	public String toString() {
+
+		return String.valueOf(this.dataAvailable) + ", "
+				+ String.valueOf(this.getTempC()) + ", "
+				+ String.valueOf(this.getHumidity()) + ", " + this.cityName
+				+ ", " + this.getType();
+		
 	}
 }

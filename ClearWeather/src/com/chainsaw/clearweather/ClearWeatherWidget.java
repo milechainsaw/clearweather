@@ -3,9 +3,11 @@ package com.chainsaw.clearweather;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 public class ClearWeatherWidget extends AppWidgetProvider {
@@ -19,14 +21,13 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			int widgetId = appWidgetIds[i];
 			RemoteViews remote = new RemoteViews(context.getPackageName(),
 					R.layout.widget_layout);
-
+			
 			Intent servIntent = new Intent(context, FetchService.class);
 			servIntent.setAction("fetch" + System.currentTimeMillis());
 			servIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 			PendingIntent pendingIntent = PendingIntent.getService(context, 0,
 					servIntent, 0);
 			remote.setOnClickPendingIntent(R.id.temp, pendingIntent);
-			Log.i("Provider", "Intent NO:[" + String.valueOf(widgetId));
 
 			appWidgetManager.updateAppWidget(widgetId, remote);
 
@@ -34,48 +35,23 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 
 	}
 
-	@Override
-	public void onEnabled(Context context) {
-		super.onEnabled(context);
-
-		// final RemoteViews remote = new RemoteViews(context.getPackageName(),
-		// R.layout.widget_layout);
-		//
-		//
-		// WeatherDataListener listener;
-		//
-		// LocationData loc = new LocationData(context);
-		// OpenWeatherAPI weather = new OpenWeatherAPI();
-		//
-		// listener = new WeatherDataListener() {
-		// @Override
-		// public void onDataReady(JSONObject weatherData) {
-		// try {
-		// JSONObject mainObj = weatherData.getJSONObject("main");
-		// WeatherData
-		// .setTemp((int) (mainObj.getDouble("temp") - 273.15));
-		// WeatherData.humidity = (int) (mainObj.getInt("humidity"));
-		// WeatherData.timestamp = System.currentTimeMillis();
-		// remote.setTextViewText(R.id.temp,
-		// String.valueOf(WeatherData.getTempC()));
-		//
-		// } catch (JSONException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// };
-		//
-		// weather.setListener(listener);
-		// weather.getData(loc.getData());
-
-	}
-
+	
 	public static void updateWidget(Context context, int appWidgetId) {
 		Intent intent = new Intent(context, ClearWeatherWidget.class);
 		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		context.sendBroadcast(intent);
 		Log.i("Provider", "Update Called...");
+	}
+
+	public static void updateAll(Context context) {
+			AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+			ComponentName compName = new ComponentName(context, ClearWeatherWidget.class);
+			Intent intent = new Intent(context, ClearWeatherWidget.class);
+			intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+			intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
+					appWidgetManager.getAppWidgetIds(compName));
+			context.sendBroadcast(intent);	
 	}
 
 }

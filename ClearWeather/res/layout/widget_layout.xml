@@ -32,9 +32,9 @@
 		android:typeface="sans" />
 
 	<RelativeLayout
-		android:layout_centerVertical="true"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
 		android:layout_toLeftOf="@+id/humidity"
 		android:layout_toRightOf="@+id/temp" >
 
@@ -56,6 +56,14 @@
 			android:gravity="center"
 			android:text="@string/empty"
 			android:textColor="#ffffffff" />
+
+		<ProgressBar
+			android:id="@+id/loading"
+			style="?android:attr/progressBarStyleSmall"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_centerInParent="true"
+			android:visibility="invisible" />
 	</RelativeLayout>
 
 </RelativeLayout>
