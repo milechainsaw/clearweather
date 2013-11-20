@@ -23,7 +23,6 @@ public class FetchService extends Service {
 			widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
 		else
 			widgetId = 0;
-		Log.i("Service:widgetID", String.valueOf(widgetId));
 
 		LocationData loc = new LocationData(context);
 		Location location = loc.getData();
@@ -39,15 +38,16 @@ public class FetchService extends Service {
 						.getInstance(context);
 
 				SharedPreferences perfs = FetchService.this
-						.getSharedPreferences("com.chainsaw.clearweather",
+						.getSharedPreferences("com.chainsaw.clearweather" + String.valueOf(widgetId),
 								MODE_PRIVATE);
-				if (perfs.getBoolean("isCelsius", true)) {
+				if (perfs.getBoolean("isCelsius",
+						true)) {
 					temperature = String.valueOf(weatherData.getTempC()) + "°C";
 				} else {
-					temperature = String.valueOf(weatherData.getTempF())+ "°F";
+					temperature = String.valueOf(weatherData.getTempF()) + "°F";
 				}
-				
-				humidity=String.valueOf(weatherData.getHumidity())+"%";
+
+				humidity = String.valueOf(weatherData.getHumidity()) + "%";
 				name = weatherData.getCityName();
 
 				RemoteViews remote = new RemoteViews(context.getPackageName(),
