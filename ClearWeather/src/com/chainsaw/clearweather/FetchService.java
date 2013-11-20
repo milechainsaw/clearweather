@@ -32,19 +32,11 @@ public class FetchService extends Service {
 
 		WeatherDataListener listener = new WeatherDataListener() {
 			@Override
-			public void onDataReady(JSONObject weatherData) {
+			public void onDataReady(WeatherData weatherData) {
 				int temperature = -10;
 				int humidity = -10;
 				String name = "null";
-				try {
-					JSONObject mainObj = weatherData.getJSONObject("main");
-					temperature = (int) (mainObj.getDouble("temp") - 273.15);
-					humidity = (int) (mainObj.getInt("humidity"));
-					name = weatherData.getString("name");
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-
+				
 				AppWidgetManager appWidgetManager = AppWidgetManager
 						.getInstance(context);
 

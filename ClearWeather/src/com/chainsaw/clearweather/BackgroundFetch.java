@@ -11,13 +11,14 @@ import org.json.JSONObject;
 
 import android.os.AsyncTask;
 
-class BackgroundFetch extends AsyncTask<String, Void, JSONObject> {
+class BackgroundFetch extends AsyncTask<String, Void, WeatherData> {
 
 	JSONObject weatherData;
 	StringBuffer buffer;
+	WeatherData returnData;
 
 	@Override
-	protected JSONObject doInBackground(String... params) {
+	protected WeatherData doInBackground(String... params) {
 
 		HttpURLConnection con = null;
 		InputStream is = null;
@@ -60,7 +61,16 @@ class BackgroundFetch extends AsyncTask<String, Void, JSONObject> {
 		is = null;
 		con = null;
 
-		return weatherData;
+		try {
+			JSONObject mainObj = weatherData.getJSONObject("main");
+			returnData = new WeatherData(
+					((int) (mainObj.getDouble("temp") - 273.15)),
+					((int) (mainObj.getInt("humidity"))), weatherData.getString("name"));
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		return returnData;
 
 	}
 }

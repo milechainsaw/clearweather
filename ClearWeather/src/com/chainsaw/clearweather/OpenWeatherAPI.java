@@ -20,7 +20,7 @@ public class OpenWeatherAPI {
 	public OpenWeatherAPI() {
 		asyncLoader = new BackgroundFetch() {
 			@Override
-			protected void onPostExecute(JSONObject result) {
+			protected void onPostExecute(WeatherData result) {
 				if (OpenWeatherAPI.this.listener != null)
 					OpenWeatherAPI.this.listener.onDataReady(result);
 			}
