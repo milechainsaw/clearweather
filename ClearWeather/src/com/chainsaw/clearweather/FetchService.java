@@ -7,12 +7,15 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 public class FetchService extends Service {
 
 	@Override
 	public int onStartCommand(Intent i, int flags, final int startId) {
+		Log.i("FetchService", "Fetch started");
 		final FetchService context = this;
 		final Intent intent = i;
 		final int widgetId;
@@ -56,22 +59,31 @@ public class FetchService extends Service {
 				name = weatherData.getCityName();
 
 				if (weatherData.isDataAvailable()) {
+					remote.setViewVisibility(R.id.temp, View.VISIBLE);
+					remote.setViewVisibility(R.id.humidity, View.VISIBLE);
+					remote.setViewVisibility(R.id.location, View.VISIBLE);
+					remote.setViewVisibility(R.id.weather, View.VISIBLE);
+					remote.setViewVisibility(R.id.loading, View.INVISIBLE);					
+					
 					remote.setTextViewText(R.id.temp, temperature);
 					remote.setTextViewText(R.id.humidity, humidity);
 					remote.setTextViewText(R.id.location, name);
 					remote.setTextViewText(R.id.weather, weatherType);
 				} else {
-					remote.setTextViewText(R.id.temp, temperature);
-					remote.setTextViewText(R.id.humidity, humidity);
-					remote.setTextViewText(R.id.location, name);
+					remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+					remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+					remote.setViewVisibility(R.id.location, View.INVISIBLE);
+					remote.setViewVisibility(R.id.weather, View.VISIBLE);
+					remote.setViewVisibility(R.id.loading, View.INVISIBLE);
 					remote.setTextViewText(R.id.weather, weatherData.getType());
 				}
+				
+								
 
 				if (widgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
 					appWidgetManager.updateAppWidget(widgetId, remote);
-					stopSelf(startId);
 				}
-
+				stopSelf(startId);
 			}
 		};
 

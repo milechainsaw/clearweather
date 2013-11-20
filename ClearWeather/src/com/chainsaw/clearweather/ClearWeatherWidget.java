@@ -7,7 +7,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
-import android.view.View;
 import android.widget.RemoteViews;
 
 public class ClearWeatherWidget extends AppWidgetProvider {
@@ -27,15 +26,15 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			servIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 			PendingIntent pendingIntent = PendingIntent.getService(context, 0,
 					servIntent, 0);
-			remote.setOnClickPendingIntent(R.id.temp, pendingIntent);
+			remote.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
 			appWidgetManager.updateAppWidget(widgetId, remote);
 
 		}
 
 	}
-
 	
+		
 	public static void updateWidget(Context context, int appWidgetId) {
 		Intent intent = new Intent(context, ClearWeatherWidget.class);
 		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);

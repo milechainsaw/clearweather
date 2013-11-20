@@ -7,9 +7,11 @@
 	android:paddingBottom="3dp"
 	android:paddingLeft="10dp"
 	android:paddingRight="10dp"
-	android:paddingTop="3dp" >
+	android:paddingTop="3dp"
+	android:id="@+id/widget" >
 
 	<TextView
+		android:visibility="invisible"
 		android:id="@+id/humidity"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -21,6 +23,7 @@
 		android:typeface="sans" />
 
 	<TextView
+		android:visibility="invisible"
 		android:id="@+id/temp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -39,6 +42,7 @@
 		android:layout_toRightOf="@+id/temp" >
 
 		<TextView
+			android:visibility="invisible"
 			android:id="@+id/location"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -48,6 +52,7 @@
 			android:textColor="#ffffffff" />
 
 		<TextView
+			android:visibility="invisible"
 			android:id="@+id/weather"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -59,11 +64,10 @@
 
 		<ProgressBar
 			android:id="@+id/loading"
-			style="?android:attr/progressBarStyleSmall"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerInParent="true"
-			android:visibility="invisible" />
+			android:visibility="visible" />
 	</RelativeLayout>
 
 </RelativeLayout>

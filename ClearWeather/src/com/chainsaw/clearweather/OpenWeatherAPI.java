@@ -35,6 +35,9 @@ public class OpenWeatherAPI {
 			@Override
 			protected void onProgressUpdate(Integer... values) {
 				super.onProgressUpdate(values);
+				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+				remote.setViewVisibility(R.id.location, View.INVISIBLE);
 				remote.setViewVisibility(R.id.loading, View.VISIBLE);
 				remote.setProgressBar(R.id.loading, 10, 5, true);
 				ClearWeatherWidget.updateAll(context);
