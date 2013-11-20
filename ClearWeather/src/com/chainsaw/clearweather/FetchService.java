@@ -33,18 +33,21 @@ public class FetchService extends Service {
 				String temperature = "n/a";
 				String humidity = "n/a";
 				String name = "n/a";
+				String weatherType = "";
 
 				AppWidgetManager appWidgetManager = AppWidgetManager
 						.getInstance(context);
 
 				SharedPreferences perfs = FetchService.this
-						.getSharedPreferences("com.chainsaw.clearweather" + String.valueOf(widgetId),
-								MODE_PRIVATE);
-				if (perfs.getBoolean("isCelsius",
-						true)) {
+						.getSharedPreferences("com.chainsaw.clearweather"
+								+ String.valueOf(widgetId), MODE_PRIVATE);
+				if (perfs.getBoolean("isCelsius", true)) {
 					temperature = String.valueOf(weatherData.getTempC()) + "°C";
 				} else {
 					temperature = String.valueOf(weatherData.getTempF()) + "°F";
+				}
+				if (weatherData.getType() != null) {
+					weatherType = weatherData.getType();
 				}
 
 				humidity = String.valueOf(weatherData.getHumidity()) + "%";
@@ -55,7 +58,7 @@ public class FetchService extends Service {
 				remote.setTextViewText(R.id.temp, temperature);
 				remote.setTextViewText(R.id.humidity, humidity);
 				remote.setTextViewText(R.id.location, name);
-
+				remote.setTextViewText(R.id.weather, weatherType);
 				if (widgetId != 0) {
 					appWidgetManager.updateAppWidget(widgetId, remote);
 					stopSelf(startId);

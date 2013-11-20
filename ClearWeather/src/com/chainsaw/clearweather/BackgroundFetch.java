@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -63,9 +64,10 @@ class BackgroundFetch extends AsyncTask<String, Void, WeatherData> {
 
 		try {
 			JSONObject mainObj = weatherData.getJSONObject("main");
+			JSONArray weatherObj = weatherData.getJSONArray("weather");
 			returnData = new WeatherData((int) (Math.round(mainObj
 					.getDouble("temp") - 273.15)), ((int) (Math.round(mainObj
-					.getInt("humidity")))), weatherData.getString("name"));
+					.getInt("humidity")))), weatherData.getString("name"), ((JSONObject) weatherObj.get(0)).getString("description"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
