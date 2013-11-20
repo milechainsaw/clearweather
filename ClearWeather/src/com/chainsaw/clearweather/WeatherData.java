@@ -2,32 +2,55 @@ package com.chainsaw.clearweather;
 
 public class WeatherData {
 
-	private static int temp;
-	static int humidity;
-	static long timestamp = 0;
-	private static long TIME_VALID = 600000;
+	private  int temp;
+	private int humidity;
+	private String cityName;
+	private long timestamp = 0;
+	private long TIME_VALID = 600000;
 
 	public WeatherData() {
 	}
-	
-	static void setTemp(int t){
-		temp = t;
+	public WeatherData(int temperature, int humid, String name){
+		this.setHumidity(humid);
+		this.setTemp(temperature);
+		this.cityName = name;
+		this.timestamp = System.currentTimeMillis();
 	}
 	
-	static int getTempC(){
+	
+	public void setTemp(int t){
+		this.temp = t;
+	}
+	
+	public int getTempC(){
 		return temp;		
 	}
 	
-	static int getTempF(){
-		return (int) ((temp * 1.8) +32);		
+	public int getTempF(){
+		return (int) ((this.temp * 1.8) +32);		
 	}
+	
 
-	static boolean isValid() {
+	public boolean isValid() {
 		if (timestamp - TIME_VALID <= 0) {
 			return false;
 		} else {
 			return true;
 		}
 
+	}
+
+	public int getHumidity() {
+		return humidity;
+	}
+
+	public void setHumidity(int humidity) {
+		this.humidity = humidity;
+	}
+	public String getCityName() {
+		return cityName;
+	}
+	public void setCityName(String cityName) {
+		this.cityName = cityName;
 	}
 }
