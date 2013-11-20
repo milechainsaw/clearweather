@@ -63,9 +63,9 @@ class BackgroundFetch extends AsyncTask<String, Void, WeatherData> {
 
 		try {
 			JSONObject mainObj = weatherData.getJSONObject("main");
-			returnData = new WeatherData(
-					((int) (mainObj.getDouble("temp") - 273.15)),
-					((int) (mainObj.getInt("humidity"))), weatherData.getString("name"));
+			returnData = new WeatherData((int) (Math.round(mainObj
+					.getDouble("temp") - 273.15)), ((int) (Math.round(mainObj
+					.getInt("humidity")))), weatherData.getString("name"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
