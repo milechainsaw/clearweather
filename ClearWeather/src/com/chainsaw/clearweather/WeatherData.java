@@ -6,9 +6,9 @@ public class WeatherData {
 	private int humidity;
 	private String cityName;
 	private String type;
-	private long timestamp = 0;
+	private static long timestamp = 0;
 	private boolean dataAvailable;
-	private long TIME_VALID = 600000;
+	private static long TIME_VALID = 600000;
 
 	public WeatherData() {
 	}
@@ -32,7 +32,7 @@ public class WeatherData {
 		return (int) ((this.temp * 1.8) + 32);
 	}
 
-	public boolean isValid() {
+	public static boolean isValid() {
 		if (timestamp - TIME_VALID <= 0) {
 			return false;
 		} else {
