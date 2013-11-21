@@ -21,7 +21,7 @@ public class WeatherData {
 		this.cityName = name;
 		this.type = weatherType;
 
-		this.timestamp = System.currentTimeMillis();
+		WeatherData.timestamp = System.currentTimeMillis();
 	}
 
 	public int getTempC() {
