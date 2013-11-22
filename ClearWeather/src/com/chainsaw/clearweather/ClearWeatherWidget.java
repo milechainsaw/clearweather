@@ -23,32 +23,39 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		super.onReceive(context, intent);
+		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+
+		int[] ids = { AppWidgetManager.INVALID_APPWIDGET_ID };
 
 		if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
-			AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
 			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
-				this.onUpdate(context, appWidgetManager,
-						intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS));
+				Log.e("HAS ARRAY","x");
+				ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
 			}
 			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
-				int[] ids = { intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-						AppWidgetManager.INVALID_APPWIDGET_ID) };
-				this.onUpdate(context, appWidgetManager, ids);
+				Log.e("HAS SINGLE","y");
+				ids[0] = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+						AppWidgetManager.INVALID_APPWIDGET_ID);
 			}
-			appWidgetManager = null;
 		}
 
 		if (intent.getAction().equals(WEATHER_DATA)) {
-			writeData(context, intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-					AppWidgetManager.INVALID_APPWIDGET_ID));
+			RemoteViews remote = writeData(context, intent.getIntExtra(
+					AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID),
+					!WeatherData.loadError);
+			appWidgetManager.updateAppWidget(intent.getIntExtra(
+					AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID),
+					remote);
+
 		}
+
+		this.onUpdate(context, appWidgetManager, ids);
 
 	}
 
-	private void writeData(Context context, int widgetId) {
+	private RemoteViews writeData(Context context, int widgetId, boolean valid) {
+		RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 		if (FetchService.weatherData != null) {
-			RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-
 			String temperature = "18°";
 			String humidity = "55%";
 			String name = "Here";
@@ -72,14 +79,39 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			remote.setTextViewText(R.id.humidity, humidity);
 			remote.setTextViewText(R.id.location, name);
 			remote.setTextViewText(R.id.weather, weatherType);
-			
+
 			ClearWeatherWidget.DATA_WRITTEN.put(widgetId, true);
 
-		//	AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-		//	appWidgetManager.updateAppWidget(widgetId, remote);
-			updateWidget(context, widgetId);
-		//	appWidgetManager = null;
+			// AppWidgetManager appWidgetManager =
+			// AppWidgetManager.getInstance(context);
+			// appWidgetManager.updateAppWidget(widgetId, remote);
+			// updateWidget(context, widgetId);
+			// appWidgetManager = null;
+
+			if (valid) {
+				remote.setViewVisibility(R.id.temp, View.VISIBLE);
+				remote.setViewVisibility(R.id.humidity, View.VISIBLE);
+				remote.setViewVisibility(R.id.location, View.VISIBLE);
+				remote.setViewVisibility(R.id.weather, View.VISIBLE);
+				remote.setViewVisibility(R.id.loading, View.INVISIBLE);
+			} else {
+				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+				remote.setViewVisibility(R.id.location, View.INVISIBLE);
+				remote.setViewVisibility(R.id.weather, View.VISIBLE);
+				remote.setViewVisibility(R.id.loading, View.INVISIBLE);
+			}
+		} else {
+			remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+			remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+			remote.setViewVisibility(R.id.location, View.INVISIBLE);
+			remote.setViewVisibility(R.id.weather, View.INVISIBLE);
+			remote.setViewVisibility(R.id.loading, View.VISIBLE);
+
 		}
+		remote.setOnClickPendingIntent(R.id.widget, makeForceIntent(context, widgetId));
+
+		return remote;
 	}
 
 	@Override
@@ -90,7 +122,7 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			String temp_ids = prefs.getString("WIDGET_IDS", null);
 			StringTokenizer tokenizer = new StringTokenizer(temp_ids, ",");
 			String newWidgetIds = "";
-			
+
 			while (tokenizer.hasMoreTokens()) {
 				int savedId = Integer.parseInt(tokenizer.nextToken());
 				for (int currentId : appWidgetIds) {
@@ -103,7 +135,6 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 
 				}
 			}
-			Log.i("newIds:"+newWidgetIds,"j");
 			prefs.edit().putString("WIDGET_IDS", newWidgetIds).apply();
 		}
 		super.onDeleted(context, appWidgetIds);
@@ -124,16 +155,10 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 				while (tokenizer.hasMoreTokens()) {
 					int savedId = Integer.parseInt(tokenizer.nextToken());
 					if (widgetId == savedId) {
-						RemoteViews remote = new RemoteViews(context.getPackageName(),
-								R.layout.widget_layout);
-
-						Intent forceFetch = new Intent(context, FetchService.class);
-						forceFetch.setAction("fetch" + System.currentTimeMillis());
-						forceFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-						forceFetch.putExtra("force_update", true);
-						PendingIntent pendingIntent = PendingIntent.getService(context, 0,
-								forceFetch, 0);
-						remote.setOnClickPendingIntent(R.id.widget, pendingIntent);
+						// RemoteViews remote = new
+						// RemoteViews(context.getPackageName(),
+						// R.layout.widget_layout);
+						// RemoteViews remote = null;
 
 						if (FetchService.weatherData == null || !FetchService.weatherData.isValid()) {
 							Intent regularFetch = new Intent(context, FetchService.class);
@@ -141,15 +166,12 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 							regularFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 							context.startService(regularFetch);
 						} else {
-							if (!ClearWeatherWidget.DATA_WRITTEN.get(widgetId)) {
-								writeData(context, widgetId);
-							}
-							if (ClearWeatherWidget.DATA_WRITTEN.get(widgetId)) {
-								weatherDisplay(context, remote, !WeatherData.loadError, widgetId);
-							}
-							//appWidgetManager.updateAppWidget(widgetId, remote);
+							RemoteViews remote = writeData(context, widgetId,
+									!WeatherData.loadError);
+							appWidgetManager.updateAppWidget(widgetId, remote);
+
 						}
-						
+
 					}
 				}
 
@@ -157,21 +179,15 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		}
 
 	}
-
-	private void weatherDisplay(Context context, RemoteViews remote, boolean valid, int widgetId) {
-		if (valid) {
-			remote.setViewVisibility(R.id.temp, View.VISIBLE);
-			remote.setViewVisibility(R.id.humidity, View.VISIBLE);
-			remote.setViewVisibility(R.id.location, View.VISIBLE);
-			remote.setViewVisibility(R.id.weather, View.VISIBLE);
-			remote.setViewVisibility(R.id.loading, View.INVISIBLE);
-		} else {
-			remote.setViewVisibility(R.id.temp, View.INVISIBLE);
-			remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
-			remote.setViewVisibility(R.id.location, View.INVISIBLE);
-			remote.setViewVisibility(R.id.weather, View.VISIBLE);
-			remote.setViewVisibility(R.id.loading, View.INVISIBLE);
-		}
+	
+	private PendingIntent makeForceIntent(Context context, int widgetId){
+		Intent forceFetch = new Intent(context, FetchService.class);
+		forceFetch.setAction("fetch" + System.currentTimeMillis());
+		forceFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+		forceFetch.putExtra("force_update", true);
+		PendingIntent pendingIntent = PendingIntent.getService(context, 0,
+				forceFetch, 0);
+		return pendingIntent;
 	}
 
 	public static void updateWidget(Context context, int appWidgetId) {
@@ -179,11 +195,7 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		context.sendBroadcast(intent);
-
-		AppWidgetManager manager = AppWidgetManager.getInstance(context);
-		RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-		manager.updateAppWidget(appWidgetId, remote);
-
+		Log.w("updateWidget", "updateIntent broadcast!");
 	}
 
 	public static void updateAll(Context context) {

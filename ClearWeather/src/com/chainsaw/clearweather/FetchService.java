@@ -80,6 +80,7 @@ public class FetchService extends Service {
 			WeatherData.loadError = true;
 		}
 		context.sendBroadcast(returnData);
+		Log.i("FetchService", "data intent Broadcasted");
 
 	}
 
