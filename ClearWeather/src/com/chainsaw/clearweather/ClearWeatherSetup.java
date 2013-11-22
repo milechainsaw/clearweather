@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -46,16 +47,27 @@ public class ClearWeatherSetup extends Activity {
 		});
 	}
 
-	void finishSetup(Boolean celsius,int id) {
+	void finishSetup(Boolean celsius, int id) {
 		SharedPreferences perfs = ClearWeatherSetup.this.getSharedPreferences(
 				"com.chainsaw.clearweather" + String.valueOf(id), MODE_PRIVATE);
 		perfs.edit().putBoolean("isCelsius", celsius).apply();
 		perfs = null;
+		
+		perfs = ClearWeatherSetup.this.getSharedPreferences(
+				"com.chainsaw.clearweather", MODE_PRIVATE);
+		String old_ids = perfs.getString("WIDGET_IDS", "");
+		String newData = old_ids.concat(String.valueOf(id) + ",");
+		perfs.edit().putString("WIDGET_IDS",
+				newData).apply();
+		Log.e("oldData", old_ids);
+		Log.e("finishSetup", newData);
+		
 
 		Intent resultValue = new Intent();
-		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
 		setResult(RESULT_OK, resultValue);
-		ClearWeatherWidget.updateWidget(ClearWeatherSetup.this, widgetId);
+
+		ClearWeatherWidget.updateWidget(ClearWeatherSetup.this, id);
 
 		finish();
 

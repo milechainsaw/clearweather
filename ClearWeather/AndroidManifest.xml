@@ -35,6 +35,8 @@
 			<intent-filter>
 				<action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
 				<action android:name="android.appwidget.action.APPWIDGET_ENABLED" />
+				<action android:name="android.appwidget.action.APPWIDGET_DELETED" />
+				<action android:name="com.chainsaw.clearweather.WEATHER_DATA" />
 			</intent-filter>
 
 			<meta-data

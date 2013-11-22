@@ -6,10 +6,11 @@ public class WeatherData {
 	private int humidity;
 	private String cityName;
 	private String type;
-	private static long timestamp = 0;
+	private long timestamp = 0;
 	private boolean dataAvailable;
 	private static long TIME_VALID = 600000;
-
+	public static boolean loadError = false;
+	
 	public WeatherData() {
 	}
 
@@ -20,8 +21,8 @@ public class WeatherData {
 		this.temp = temperature;
 		this.cityName = name;
 		this.type = weatherType;
-
-		WeatherData.timestamp = System.currentTimeMillis();
+		
+		this.timestamp = System.currentTimeMillis();
 	}
 
 	public int getTempC() {
@@ -32,7 +33,7 @@ public class WeatherData {
 		return (int) ((this.temp * 1.8) + 32);
 	}
 
-	public static boolean isValid() {
+	public boolean isValid() {
 		if (timestamp - TIME_VALID <= 0) {
 			return false;
 		} else {
@@ -63,6 +64,6 @@ public class WeatherData {
 				+ String.valueOf(this.getTempC()) + ", "
 				+ String.valueOf(this.getHumidity()) + ", " + this.cityName
 				+ ", " + this.getType();
-		
+
 	}
 }

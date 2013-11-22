@@ -5,8 +5,10 @@ import java.net.URLConnection;
 
 import org.json.JSONObject;
 
+import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -20,8 +22,9 @@ public class OpenWeatherAPI {
 	BackgroundFetch asyncLoader;
 	WeatherDataListener listener = null;
 
-	public OpenWeatherAPI(final Context context) {
+	public OpenWeatherAPI(final Context context, final int widgetId) {
 		final RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
+		final AppWidgetManager manager = AppWidgetManager.getInstance(context);
 	
 		asyncLoader = new BackgroundFetch(context) {
 			@Override
@@ -34,13 +37,18 @@ public class OpenWeatherAPI {
 			
 			@Override
 			protected void onProgressUpdate(Integer... values) {
-				super.onProgressUpdate(values);
+				
+				Log.i("onProgress", "updatingProgress.....");
 				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
 				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
 				remote.setViewVisibility(R.id.location, View.INVISIBLE);
+				remote.setViewVisibility(R.id.weather, View.INVISIBLE);
 				remote.setViewVisibility(R.id.loading, View.VISIBLE);
 				remote.setProgressBar(R.id.loading, 10, 5, true);
-				ClearWeatherWidget.updateAll(context);
+				manager.updateAppWidget(widgetId, remote);				
+				
+				super.onProgressUpdate(values);
+				
 			}
 		};
 	}

@@ -34,7 +34,7 @@ class BackgroundFetch extends AsyncTask<String, Integer, WeatherData> {
 	
 	@Override
 	protected WeatherData doInBackground(String... params) {
-		publishProgress(1);
+		publishProgress(10);
 		
 		HttpURLConnection con = null;
 		InputStream is = null;
