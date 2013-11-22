@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.location.Location;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -37,8 +36,6 @@ public class OpenWeatherAPI {
 			
 			@Override
 			protected void onProgressUpdate(Integer... values) {
-				
-				Log.i("onProgress", "updatingProgress.....");
 				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
 				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
 				remote.setViewVisibility(R.id.location, View.INVISIBLE);

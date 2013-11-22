@@ -52,16 +52,14 @@ public class ClearWeatherSetup extends Activity {
 				"com.chainsaw.clearweather" + String.valueOf(id), MODE_PRIVATE);
 		perfs.edit().putBoolean("isCelsius", celsius).apply();
 		perfs = null;
-		
-		perfs = ClearWeatherSetup.this.getSharedPreferences(
-				"com.chainsaw.clearweather", MODE_PRIVATE);
+
+		perfs = ClearWeatherSetup.this.getSharedPreferences("com.chainsaw.clearweather",
+				MODE_PRIVATE);
 		String old_ids = perfs.getString("WIDGET_IDS", "");
 		String newData = old_ids.concat(String.valueOf(id) + ",");
-		perfs.edit().putString("WIDGET_IDS",
-				newData).apply();
-		Log.e("oldData", old_ids);
+		perfs.edit().putString("WIDGET_IDS", newData).apply();
+		Log.e("Added this no:", "=" + id);
 		Log.e("finishSetup", newData);
-		
 
 		Intent resultValue = new Intent();
 		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);

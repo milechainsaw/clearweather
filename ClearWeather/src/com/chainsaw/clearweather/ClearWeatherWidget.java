@@ -39,27 +39,47 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		}
 
 		if (intent.getAction().equals(WEATHER_DATA)) {
-			writeData(context, intent);
-
+			writeData(context, intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
+					AppWidgetManager.INVALID_APPWIDGET_ID));
 		}
 
 	}
 
-	private void writeData(Context context, Intent intent) {
-		RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
-		remote.setTextViewText(R.id.temp, intent.getStringExtra("temperature"));
-		remote.setTextViewText(R.id.humidity, intent.getStringExtra("humidity"));
-		remote.setTextViewText(R.id.location, intent.getStringExtra("location"));
-		remote.setTextViewText(R.id.weather, intent.getStringExtra("weather"));
-		int widgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
-				AppWidgetManager.INVALID_APPWIDGET_ID);
-		ClearWeatherWidget.DATA_WRITTEN.put(widgetId, true);
-		Log.i("ARRAY:", widgetId + "=" + DATA_WRITTEN.get(widgetId));
+	private void writeData(Context context, int widgetId) {
+		if (FetchService.weatherData != null) {
+			RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
-		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-		appWidgetManager.updateAppWidget(widgetId, remote);
-		updateWidget(context, widgetId);
-		appWidgetManager = null;
+			String temperature = "18°";
+			String humidity = "55%";
+			String name = "Here";
+			String weatherType = "";
+
+			SharedPreferences perfs = context.getSharedPreferences("com.chainsaw.clearweather"
+					+ String.valueOf(widgetId), Context.MODE_PRIVATE);
+			if (perfs.getBoolean("isCelsius", true)) {
+				temperature = String.valueOf(FetchService.weatherData.getTempC()) + "°C";
+			} else {
+				temperature = String.valueOf(FetchService.weatherData.getTempF()) + "°F";
+			}
+			if (FetchService.weatherData.getType() != null) {
+				weatherType = FetchService.weatherData.getType();
+			}
+
+			humidity = String.valueOf(FetchService.weatherData.getHumidity()) + "%";
+			name = FetchService.weatherData.getCityName();
+
+			remote.setTextViewText(R.id.temp, temperature);
+			remote.setTextViewText(R.id.humidity, humidity);
+			remote.setTextViewText(R.id.location, name);
+			remote.setTextViewText(R.id.weather, weatherType);
+			
+			ClearWeatherWidget.DATA_WRITTEN.put(widgetId, true);
+
+		//	AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+		//	appWidgetManager.updateAppWidget(widgetId, remote);
+			updateWidget(context, widgetId);
+		//	appWidgetManager = null;
+		}
 	}
 
 	@Override
@@ -70,11 +90,12 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			String temp_ids = prefs.getString("WIDGET_IDS", null);
 			StringTokenizer tokenizer = new StringTokenizer(temp_ids, ",");
 			String newWidgetIds = "";
+			
 			while (tokenizer.hasMoreTokens()) {
 				int savedId = Integer.parseInt(tokenizer.nextToken());
 				for (int currentId : appWidgetIds) {
 					if (savedId != currentId) {
-						newWidgetIds.concat(String.valueOf(savedId) + ",");
+						newWidgetIds = newWidgetIds.concat(String.valueOf(savedId) + ",");
 					}
 					if (savedId == currentId) {
 						ClearWeatherWidget.DATA_WRITTEN.delete(savedId);
@@ -82,6 +103,7 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 
 				}
 			}
+			Log.i("newIds:"+newWidgetIds,"j");
 			prefs.edit().putString("WIDGET_IDS", newWidgetIds).apply();
 		}
 		super.onDeleted(context, appWidgetIds);
@@ -96,7 +118,6 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		if (prefs.contains("WIDGET_IDS")) {
 			String ids = prefs.getString("WIDGET_IDS", null);
 			StringTokenizer tokenizer = new StringTokenizer(ids, ",");
-			Log.w("OK,I'm in", "STARTED TOKENIZER");
 
 			for (int i = 0; i < appWidgetIds.length; i++) {
 				int widgetId = appWidgetIds[i];
@@ -114,25 +135,21 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 								forceFetch, 0);
 						remote.setOnClickPendingIntent(R.id.widget, pendingIntent);
 
-						Intent regularFetch = new Intent(context, FetchService.class);
-						regularFetch.setAction("fetch" + System.currentTimeMillis());
-						regularFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-
-						// context.startService(regularFetch);
-						Log.w("OK,I'm in", "Just before IF, id=" + widgetId);
-						Log.w("OK,I'm in",
-								"And the DATA_WRITTEN IS:: " + DATA_WRITTEN.get(widgetId));
-
-						if (FetchService.weatherData.isValid() && F)
-						if (ClearWeatherWidget.DATA_WRITTEN.get(widgetId)) {
-							Log.w("HEY!", "UUUYAA");
-							weatherDisplay(context, remote, !WeatherData.loadError, widgetId);
-						} else if (FetchService.weatherData == null
-								|| !FetchService.weatherData.isValid()) {
+						if (FetchService.weatherData == null || !FetchService.weatherData.isValid()) {
+							Intent regularFetch = new Intent(context, FetchService.class);
+							regularFetch.setAction("fetch" + System.currentTimeMillis());
+							regularFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 							context.startService(regularFetch);
+						} else {
+							if (!ClearWeatherWidget.DATA_WRITTEN.get(widgetId)) {
+								writeData(context, widgetId);
+							}
+							if (ClearWeatherWidget.DATA_WRITTEN.get(widgetId)) {
+								weatherDisplay(context, remote, !WeatherData.loadError, widgetId);
+							}
+							//appWidgetManager.updateAppWidget(widgetId, remote);
 						}
-
-						appWidgetManager.updateAppWidget(widgetId, remote);
+						
 					}
 				}
 
@@ -155,9 +172,6 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			remote.setViewVisibility(R.id.weather, View.VISIBLE);
 			remote.setViewVisibility(R.id.loading, View.INVISIBLE);
 		}
-		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-		appWidgetManager.updateAppWidget(widgetId, remote);
-
 	}
 
 	public static void updateWidget(Context context, int appWidgetId) {
