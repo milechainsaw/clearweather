@@ -24,37 +24,38 @@ public class OpenWeatherAPI {
 	public OpenWeatherAPI(final Context context, final int widgetId) {
 		final RemoteViews remote = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 		final AppWidgetManager manager = AppWidgetManager.getInstance(context);
-	
+
 		asyncLoader = new BackgroundFetch(context) {
 			@Override
 			protected void onPostExecute(WeatherData result) {
 				remote.setViewVisibility(R.id.loading, View.INVISIBLE);
 				if (OpenWeatherAPI.this.listener != null)
 					OpenWeatherAPI.this.listener.onDataReady(result);
-				
+
 			}
-			
+
 			@Override
 			protected void onProgressUpdate(Integer... values) {
 				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+				remote.setViewVisibility(R.id.tempUnit, View.INVISIBLE);
 				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+				remote.setViewVisibility(R.id.humidityUnit, View.INVISIBLE);
 				remote.setViewVisibility(R.id.location, View.INVISIBLE);
 				remote.setViewVisibility(R.id.weather, View.INVISIBLE);
 				remote.setViewVisibility(R.id.timestamp, View.INVISIBLE);
 				remote.setViewVisibility(R.id.loading, View.VISIBLE);
 				remote.setProgressBar(R.id.loading, 10, 5, true);
-				manager.updateAppWidget(widgetId, remote);				
-				
+				manager.updateAppWidget(widgetId, remote);
+
 				super.onProgressUpdate(values);
-				
+
 			}
 		};
 	}
 
 	void getData(Location location) {
-		asyncLoader.execute(serviceURL + "lat="
-				+ String.valueOf(location.getLatitude()) + "&" + "lon="
-				+ String.valueOf(location.getLongitude()) + API_KEY);
+		asyncLoader.execute(serviceURL + "lat=" + String.valueOf(location.getLatitude()) + "&"
+				+ "lon=" + String.valueOf(location.getLongitude()) + API_KEY);
 	}
 
 	void setListener(WeatherDataListener li) {
