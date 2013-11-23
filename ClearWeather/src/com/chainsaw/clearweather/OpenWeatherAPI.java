@@ -54,8 +54,13 @@ public class OpenWeatherAPI {
 	}
 
 	void getData(Location location) {
-		asyncLoader.execute(serviceURL + "lat=" + String.valueOf(location.getLatitude()) + "&"
-				+ "lon=" + String.valueOf(location.getLongitude()) + API_KEY);
+		if(location==null){
+			location = new Location("loc");
+			location.setLatitude(60.075);
+			location.setLongitude(12.643);
+		}
+			asyncLoader.execute(serviceURL + "lat=" + String.valueOf(location.getLatitude()) + "&"
+					+ "lon=" + String.valueOf(location.getLongitude()) + API_KEY);
 	}
 
 	void setListener(WeatherDataListener li) {
