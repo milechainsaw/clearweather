@@ -2,6 +2,7 @@ package com.chainsaw.clearweather;
 
 import java.util.StringTokenizer;
 
+import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -24,16 +25,17 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 	public void onReceive(Context context, Intent intent) {
 		super.onReceive(context, intent);
 		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+			setAlarm(context);
+		}
 
 		int[] ids = { AppWidgetManager.INVALID_APPWIDGET_ID };
 
 		if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
 			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
-				Log.e("HAS ARRAY","x");
 				ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
 			}
 			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
-				Log.e("HAS SINGLE","y");
 				ids[0] = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 						AppWidgetManager.INVALID_APPWIDGET_ID);
 			}
@@ -179,14 +181,13 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		}
 
 	}
-	
-	private PendingIntent makeForceIntent(Context context, int widgetId){
+
+	private PendingIntent makeForceIntent(Context context, int widgetId) {
 		Intent forceFetch = new Intent(context, FetchService.class);
 		forceFetch.setAction("fetch" + System.currentTimeMillis());
 		forceFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
 		forceFetch.putExtra("force_update", true);
-		PendingIntent pendingIntent = PendingIntent.getService(context, 0,
-				forceFetch, 0);
+		PendingIntent pendingIntent = PendingIntent.getService(context, 0, forceFetch, 0);
 		return pendingIntent;
 	}
 
@@ -208,6 +209,17 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		context.sendBroadcast(intent);
 		appWidgetManager = null;
 		compName = null;
+		Log.w("updateAll", "updateAll");
+	}
+
+	public static void setAlarm(Context context) {
+		Intent callToAlarm = new Intent(context, AlarmReceiver.class);
+		PendingIntent alarm = PendingIntent.getBroadcast(context, 0, callToAlarm,
+				PendingIntent.FLAG_CANCEL_CURRENT);
+		AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()+5000,
+				10000, alarm);
+		Log.i("AlarmSetup", "Alarm set!");
 	}
 
 }
