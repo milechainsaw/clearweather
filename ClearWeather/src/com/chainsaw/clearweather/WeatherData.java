@@ -16,6 +16,7 @@ public class WeatherData {
 	private static long TIME_VALID = AlarmManager.INTERVAL_HALF_HOUR;
 	public static boolean loadError = false;
 	public Context context;
+	public static int newDataStatus = BackgroundFetch.NO_DATA;
 	
 	public WeatherData() {
 	}
