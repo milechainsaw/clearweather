@@ -13,6 +13,7 @@ public class FetchService extends Service {
 
 	public static boolean running = false;
 	public static WeatherData weatherData = null;
+	private boolean fromAlarm = false;
 
 	@Override
 	public int onStartCommand(Intent i, int flags, final int startId) {
@@ -21,11 +22,14 @@ public class FetchService extends Service {
 		final int widgetId;
 
 		Bundle extras = intent.getExtras();
-		if (extras != null)
+		if (extras != null) {
 			widgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,
 					AppWidgetManager.INVALID_APPWIDGET_ID);
-		else
+		} else {
 			widgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
+		}
+
+		this.fromAlarm = extras.getBoolean("from_alarm", false);
 
 		WeatherDataListener listener = new WeatherDataListener() {
 			@Override
@@ -71,17 +75,20 @@ public class FetchService extends Service {
 	}
 
 	private void fillData(Context context, int widgetId) {
-		Intent returnData = new Intent();
-		returnData.setAction(ClearWeatherWidget.WEATHER_DATA);
-		returnData.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-		if (weatherData.isDataAvailable()) {
-			WeatherData.loadError = false;
+		if (fromAlarm) {
+			ClearWeatherWidget.updateAll(context);
 		} else {
-			WeatherData.loadError = true;
+			Intent returnData = new Intent();
+			returnData.setAction(ClearWeatherWidget.WEATHER_DATA);
+			returnData.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+			if (weatherData.isDataAvailable()) {
+				WeatherData.loadError = false;
+			} else {
+				WeatherData.loadError = true;
+			}
+			context.sendBroadcast(returnData);
+			Log.i("FetchService", "data intent Broadcasted");
 		}
-		context.sendBroadcast(returnData);
-		Log.i("FetchService", "data intent Broadcasted");
-
 	}
 
 	@Override
