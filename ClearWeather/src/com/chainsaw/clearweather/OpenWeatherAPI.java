@@ -40,6 +40,7 @@ public class OpenWeatherAPI {
 				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
 				remote.setViewVisibility(R.id.location, View.INVISIBLE);
 				remote.setViewVisibility(R.id.weather, View.INVISIBLE);
+				remote.setViewVisibility(R.id.timestamp, View.INVISIBLE);
 				remote.setViewVisibility(R.id.loading, View.VISIBLE);
 				remote.setProgressBar(R.id.loading, 10, 5, true);
 				manager.updateAppWidget(widgetId, remote);				
