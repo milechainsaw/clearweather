@@ -10,14 +10,15 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.View;
 import android.widget.RemoteViews;
 
 public class ClearWeatherWidget extends AppWidgetProvider {
 
-	private static SparseBooleanArray DATA_WRITTEN = new SparseBooleanArray();
+	private static PendingIntent alarm = null;
+	// BAD IDEA!!!
+	private static boolean UPDATE_IN_PROGRESS = false;
+	//
 
 	public static final String WEATHER_DATA = "com.chainsaw.clearweather.WEATHER_DATA";
 
@@ -25,20 +26,22 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 	public void onReceive(Context context, Intent intent) {
 		super.onReceive(context, intent);
 		AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-		if(intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)){
+		if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
 			setAlarm(context);
 		}
 
 		int[] ids = { AppWidgetManager.INVALID_APPWIDGET_ID };
 
 		if (intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_UPDATE)) {
-			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
-				ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
-			}
 			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
 				ids[0] = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 						AppWidgetManager.INVALID_APPWIDGET_ID);
 			}
+
+			if (intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
+				ids = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+			}
+
 		}
 
 		if (intent.getAction().equals(WEATHER_DATA)) {
@@ -62,27 +65,33 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			String humidity = "55%";
 			String name = "Here";
 			String weatherType = "";
+			String timestamp = "checked at " + FetchService.weatherData.getTimestamp();
 
 			SharedPreferences perfs = context.getSharedPreferences("com.chainsaw.clearweather"
 					+ String.valueOf(widgetId), Context.MODE_PRIVATE);
-			if (perfs.getBoolean("isCelsius", true)) {
-				temperature = String.valueOf(FetchService.weatherData.getTempC()) + "°C";
-			} else {
-				temperature = String.valueOf(FetchService.weatherData.getTempF()) + "°F";
-			}
+
 			if (FetchService.weatherData.getType() != null) {
 				weatherType = FetchService.weatherData.getType();
 			}
 
-			humidity = String.valueOf(FetchService.weatherData.getHumidity()) + "%";
+			humidity = String.valueOf(FetchService.weatherData.getHumidity());
 			name = FetchService.weatherData.getCityName();
+
+			if (perfs.getBoolean("isCelsius", true)) {
+				temperature = String.valueOf(FetchService.weatherData.getTempC());
+				remote.setTextViewText(R.id.tempUnit, "°C");
+			} else {
+				temperature = String.valueOf(FetchService.weatherData.getTempF());
+				remote.setTextViewText(R.id.tempUnit, "°F");
+
+			}
 
 			remote.setTextViewText(R.id.temp, temperature);
 			remote.setTextViewText(R.id.humidity, humidity);
+			remote.setTextViewText(R.id.humidityUnit, "%");
 			remote.setTextViewText(R.id.location, name);
 			remote.setTextViewText(R.id.weather, weatherType);
-
-			ClearWeatherWidget.DATA_WRITTEN.put(widgetId, true);
+			remote.setTextViewText(R.id.timestamp, timestamp);
 
 			// AppWidgetManager appWidgetManager =
 			// AppWidgetManager.getInstance(context);
@@ -93,21 +102,30 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 			if (valid) {
 				remote.setViewVisibility(R.id.temp, View.VISIBLE);
 				remote.setViewVisibility(R.id.humidity, View.VISIBLE);
+				remote.setViewVisibility(R.id.tempUnit, View.VISIBLE);
+				remote.setViewVisibility(R.id.humidityUnit, View.VISIBLE);
 				remote.setViewVisibility(R.id.location, View.VISIBLE);
 				remote.setViewVisibility(R.id.weather, View.VISIBLE);
+				remote.setViewVisibility(R.id.timestamp, View.VISIBLE);
 				remote.setViewVisibility(R.id.loading, View.INVISIBLE);
 			} else {
 				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+				remote.setViewVisibility(R.id.tempUnit, View.INVISIBLE);
 				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+				remote.setViewVisibility(R.id.humidityUnit, View.INVISIBLE);
 				remote.setViewVisibility(R.id.location, View.INVISIBLE);
 				remote.setViewVisibility(R.id.weather, View.VISIBLE);
+				remote.setViewVisibility(R.id.timestamp, View.INVISIBLE);
 				remote.setViewVisibility(R.id.loading, View.INVISIBLE);
 			}
 		} else {
 			remote.setViewVisibility(R.id.temp, View.INVISIBLE);
+			remote.setViewVisibility(R.id.tempUnit, View.INVISIBLE);
 			remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
+			remote.setViewVisibility(R.id.humidityUnit, View.INVISIBLE);
 			remote.setViewVisibility(R.id.location, View.INVISIBLE);
 			remote.setViewVisibility(R.id.weather, View.INVISIBLE);
+			remote.setViewVisibility(R.id.timestamp, View.INVISIBLE);
 			remote.setViewVisibility(R.id.loading, View.VISIBLE);
 
 		}
@@ -131,9 +149,6 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 					if (savedId != currentId) {
 						newWidgetIds = newWidgetIds.concat(String.valueOf(savedId) + ",");
 					}
-					if (savedId == currentId) {
-						ClearWeatherWidget.DATA_WRITTEN.delete(savedId);
-					}
 
 				}
 			}
@@ -145,38 +160,41 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 	@Override
 	public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
 		super.onUpdate(context, appWidgetManager, appWidgetIds);
+		if (!UPDATE_IN_PROGRESS) {
+			SharedPreferences prefs = context.getSharedPreferences("com.chainsaw.clearweather",
+					Context.MODE_PRIVATE);
+			if (prefs.contains("WIDGET_IDS")) {
+				String ids = prefs.getString("WIDGET_IDS", null);
+				StringTokenizer tokenizer = null;
 
-		SharedPreferences prefs = context.getSharedPreferences("com.chainsaw.clearweather",
-				Context.MODE_PRIVATE);
-		if (prefs.contains("WIDGET_IDS")) {
-			String ids = prefs.getString("WIDGET_IDS", null);
-			StringTokenizer tokenizer = new StringTokenizer(ids, ",");
+				int savedId;
+				for (int widgetId : appWidgetIds) {
+					tokenizer = new StringTokenizer(ids, ",");
+					UPDATE_IN_PROGRESS = true;
+					while (tokenizer.hasMoreTokens()) {
+						savedId = Integer.parseInt(tokenizer.nextToken());
 
-			for (int i = 0; i < appWidgetIds.length; i++) {
-				int widgetId = appWidgetIds[i];
-				while (tokenizer.hasMoreTokens()) {
-					int savedId = Integer.parseInt(tokenizer.nextToken());
-					if (widgetId == savedId) {
-						// RemoteViews remote = new
-						// RemoteViews(context.getPackageName(),
-						// R.layout.widget_layout);
-						// RemoteViews remote = null;
+						if (widgetId == savedId) {
 
-						if (FetchService.weatherData == null || !FetchService.weatherData.isValid()) {
-							Intent regularFetch = new Intent(context, FetchService.class);
-							regularFetch.setAction("fetch" + System.currentTimeMillis());
-							regularFetch.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-							context.startService(regularFetch);
-						} else {
-							RemoteViews remote = writeData(context, widgetId,
-									!WeatherData.loadError);
-							appWidgetManager.updateAppWidget(widgetId, remote);
+							if (FetchService.weatherData == null
+									|| !FetchService.weatherData.isValid()) {
+								Intent regularFetch = new Intent(context, FetchService.class);
+								regularFetch.setAction("fetch" + System.currentTimeMillis());
+								regularFetch
+										.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
+								context.startService(regularFetch);
+							} else {
+								RemoteViews remote = writeData(context, widgetId,
+										!WeatherData.loadError);
+								appWidgetManager.updateAppWidget(widgetId, remote);
+
+							}
 
 						}
-
 					}
-				}
 
+				}
+				UPDATE_IN_PROGRESS = false;
 			}
 		}
 
@@ -196,7 +214,6 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		intent.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
 		context.sendBroadcast(intent);
-		Log.w("updateWidget", "updateIntent broadcast!");
 	}
 
 	public static void updateAll(Context context) {
@@ -207,19 +224,22 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS,
 				appWidgetManager.getAppWidgetIds(compName));
 		context.sendBroadcast(intent);
-		appWidgetManager = null;
-		compName = null;
-		Log.w("updateAll", "updateAll");
 	}
 
 	public static void setAlarm(Context context) {
 		Intent callToAlarm = new Intent(context, AlarmReceiver.class);
-		PendingIntent alarm = PendingIntent.getBroadcast(context, 0, callToAlarm,
+		alarm = PendingIntent.getBroadcast(context, 0, callToAlarm,
 				PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()+5000,
-				10000, alarm);
-		Log.i("AlarmSetup", "Alarm set!");
+		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()
+				+ AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HOUR, alarm);
+	}
+
+	@Override
+	public void onDisabled(Context context) {
+		AlarmManager m = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+		m.cancel(alarm);
+		super.onDisabled(context);
 	}
 
 }

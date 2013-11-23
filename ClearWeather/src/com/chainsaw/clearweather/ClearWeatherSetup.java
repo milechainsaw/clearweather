@@ -58,13 +58,11 @@ public class ClearWeatherSetup extends Activity {
 		String old_ids = perfs.getString("WIDGET_IDS", "");
 		String newData = old_ids.concat(String.valueOf(id) + ",");
 		perfs.edit().putString("WIDGET_IDS", newData).apply();
-		Log.e("Added this no:", "=" + id);
-		Log.e("finishSetup", newData);
 
 		Intent resultValue = new Intent();
 		resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
 		setResult(RESULT_OK, resultValue);
-
+		ClearWeatherWidget.setAlarm(this.getApplicationContext());
 		ClearWeatherWidget.updateWidget(ClearWeatherSetup.this, id);
 
 		finish();

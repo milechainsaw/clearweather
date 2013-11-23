@@ -1,17 +1,30 @@
 package com.chainsaw.clearweather;
 
+import java.text.DateFormat;
+
+import android.app.AlarmManager;
+import android.content.Context;
+
 public class WeatherData {
 
 	private int temp;
 	private int humidity;
 	private String cityName;
 	private String type;
-	private long timestamp = 0;
+	private static long timestamp = 0;
 	private boolean dataAvailable;
-	private static long TIME_VALID = 600000;
+	private static long TIME_VALID = AlarmManager.INTERVAL_HALF_HOUR;
 	public static boolean loadError = false;
+	public Context context;
 	
 	public WeatherData() {
+	}
+	
+	public String getTimestamp(){
+		DateFormat df = android.text.format.DateFormat.getTimeFormat(context);
+		String formattedDate = df.format(WeatherData.timestamp);
+		return formattedDate;
+		
 	}
 
 	public WeatherData(boolean dataPresent, int temperature, int humid,
@@ -22,7 +35,7 @@ public class WeatherData {
 		this.cityName = name;
 		this.type = weatherType;
 		
-		this.timestamp = System.currentTimeMillis();
+		WeatherData.timestamp = System.currentTimeMillis();
 	}
 
 	public int getTempC() {

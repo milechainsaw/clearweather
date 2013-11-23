@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/widget"
 	android:layout_width="fill_parent"
 	android:layout_height="match_parent"
 	android:background="@drawable/background"
@@ -7,23 +8,9 @@
 	android:paddingBottom="3dp"
 	android:paddingLeft="10dp"
 	android:paddingRight="10dp"
-	android:paddingTop="3dp"
-	android:id="@+id/widget" >
+	android:paddingTop="3dp" >
 
 	<TextView
-		android:visibility="invisible"
-		android:id="@+id/humidity"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		android:layout_centerVertical="true"
-		android:text="@string/empty"
-		android:textColor="#ffffffff"
-		android:textSize="40sp"
-		android:typeface="sans" />
-
-	<TextView
-		android:visibility="invisible"
 		android:id="@+id/temp"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -31,28 +18,42 @@
 		android:layout_centerVertical="true"
 		android:text="@string/empty"
 		android:textColor="#ffffffff"
-		android:textSize="40sp"
-		android:typeface="sans" />
+		android:textSize="45sp"
+		android:typeface="sans"
+		android:visibility="invisible" />
+
+	<TextView
+		android:id="@+id/tempUnit"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBaseline="@id/temp"
+		android:layout_toRightOf="@id/temp"
+		android:text="@string/empty"
+		android:textColor="#ffffffff"
+		android:textSize="20sp"
+		android:typeface="sans"
+		android:visibility="invisible" />
 
 	<RelativeLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_centerVertical="true"
 		android:layout_toLeftOf="@+id/humidity"
-		android:layout_toRightOf="@+id/temp" >
+		android:layout_toRightOf="@+id/tempUnit" >
 
 		<TextView
-			android:visibility="invisible"
 			android:id="@+id/location"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_centerHorizontal="true"
 			android:gravity="center"
 			android:text="@string/empty"
-			android:textColor="#ffffffff" />
+			android:textColor="#ffffffff"
+			android:textStyle="bold"
+			android:typeface="sans"
+			android:visibility="invisible" />
 
 		<TextView
-			android:visibility="invisible"
 			android:id="@+id/weather"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -60,7 +61,23 @@
 			android:layout_centerHorizontal="true"
 			android:gravity="center"
 			android:text="@string/empty"
-			android:textColor="#ffffffff" />
+			android:textColor="#ffffffff"
+			android:typeface="sans"
+			android:visibility="invisible" />
+
+		<TextView
+			android:id="@+id/timestamp"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/weather"
+			android:layout_centerHorizontal="true"
+			android:gravity="center"
+			android:text="@string/empty"
+			android:textColor="#ffffffff"
+			android:textSize="12sp"
+			android:textStyle="italic"
+			android:typeface="sans"
+			android:visibility="invisible" />
 
 		<ProgressBar
 			android:id="@+id/loading"
@@ -69,5 +86,29 @@
 			android:layout_centerInParent="true"
 			android:visibility="visible" />
 	</RelativeLayout>
+
+	<TextView
+		android:id="@+id/humidityUnit"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_alignBaseline="@id/tempUnit"
+		android:layout_alignParentRight="true"
+		android:text="@string/empty"
+		android:textColor="#ffffffff"
+		android:textSize="20sp"
+		android:typeface="sans"
+		android:visibility="invisible" />
+
+	<TextView
+		android:id="@+id/humidity"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_centerVertical="true"
+		android:layout_toLeftOf="@id/humidityUnit"
+		android:text="@string/empty"
+		android:textColor="#ffffffff"
+		android:textSize="45sp"
+		android:typeface="sans"
+		android:visibility="invisible" />
 
 </RelativeLayout>

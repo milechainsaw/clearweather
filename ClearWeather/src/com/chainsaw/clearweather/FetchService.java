@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 public class FetchService extends Service {
 
@@ -35,6 +34,7 @@ public class FetchService extends Service {
 			@Override
 			public void onDataReady(WeatherData fetchedData) {
 				FetchService.weatherData = fetchedData;
+				FetchService.weatherData.context = context;
 				fillData(context, widgetId);
 				stopSelf(startId);
 				FetchService.running = false;
@@ -71,12 +71,12 @@ public class FetchService extends Service {
 		OpenWeatherAPI weatherData = new OpenWeatherAPI(this.getApplicationContext(), widgetId);
 		weatherData.setListener(listener);
 		weatherData.getData(location);
-		Log.i("FetchService", "Fetch started. Force=" + extras.getBoolean("force_update"));
 	}
 
 	private void fillData(Context context, int widgetId) {
 		if (fromAlarm) {
 			ClearWeatherWidget.updateAll(context);
+
 		} else {
 			Intent returnData = new Intent();
 			returnData.setAction(ClearWeatherWidget.WEATHER_DATA);
@@ -87,7 +87,6 @@ public class FetchService extends Service {
 				WeatherData.loadError = true;
 			}
 			context.sendBroadcast(returnData);
-			Log.i("FetchService", "data intent Broadcasted");
 		}
 	}
 
