@@ -16,7 +16,6 @@ public class AlarmReceiver extends BroadcastReceiver {
 		fetchRequest.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,
 				AppWidgetManager.INVALID_APPWIDGET_ID);
 		context.startService(fetchRequest);
-		
 	}
 
 }

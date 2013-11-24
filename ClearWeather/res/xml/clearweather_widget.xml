@@ -7,6 +7,7 @@
 	android:minResizeWidth="250dp"
 	android:minWidth="250dp"
 	android:resizeMode="horizontal|vertical"
-	android:updatePeriodMillis="0" >
+	android:updatePeriodMillis="0"
+	android:previewImage="@drawable/prevpic" >
 
 </appwidget-provider>
