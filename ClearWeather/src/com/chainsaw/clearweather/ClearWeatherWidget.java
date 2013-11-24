@@ -233,11 +233,9 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		alarm = PendingIntent.getBroadcast(context, 0, callToAlarm,
 				PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-//		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()
-//				+ AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HOUR, alarm);
 		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()
-				+ 2000, 2000, alarm);
-
+				+ AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HOUR, alarm);
+		
 	}
 
 	@Override
