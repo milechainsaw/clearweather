@@ -33,7 +33,20 @@ public class FetchService extends Service {
 		WeatherDataListener listener = new WeatherDataListener() {
 			@Override
 			public void onDataReady(WeatherData fetchedData) {
-				FetchService.weatherData = fetchedData;
+				if (fetchedData == null) {
+					if (WeatherData.timestamp == 0) {
+						FetchService.weatherData = new WeatherData(true);
+					}
+					if (WeatherData.timestamp != 0) {
+						WeatherData.loadError = false;
+					}
+				}
+
+				if (fetchedData != null) {
+					FetchService.weatherData = fetchedData;
+					WeatherData.loadError = false;					
+				}
+
 				FetchService.weatherData.context = context;
 				fillData(context, widgetId);
 				stopSelf(startId);
@@ -81,11 +94,7 @@ public class FetchService extends Service {
 			Intent returnData = new Intent();
 			returnData.setAction(ClearWeatherWidget.WEATHER_DATA);
 			returnData.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, widgetId);
-			if (weatherData.isDataAvailable()) {
-				WeatherData.loadError = false;
-			} else {
-				WeatherData.loadError = true;
-			}
+
 			context.sendBroadcast(returnData);
 		}
 	}

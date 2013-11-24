@@ -11,8 +11,8 @@ public class WeatherData {
 	private int humidity;
 	private String cityName;
 	private String type;
-	private static long timestamp = 0;
-	private boolean dataAvailable;
+	public static long timestamp = 0;
+	private boolean dataAvailable = false;
 	private static long TIME_VALID = AlarmManager.INTERVAL_HALF_HOUR;
 	public static boolean loadError = false;
 	public Context context;
@@ -26,6 +26,14 @@ public class WeatherData {
 		String formattedDate = df.format(WeatherData.timestamp);
 		return formattedDate;
 		
+	}
+	
+	public WeatherData(boolean err) {
+		temp=0;
+		humidity=0;
+		cityName="";
+		type="";
+		loadError=err;
 	}
 
 	public WeatherData(boolean dataPresent, int temperature, int humid,

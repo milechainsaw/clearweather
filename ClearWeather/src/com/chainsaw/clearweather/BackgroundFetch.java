@@ -91,6 +91,7 @@ class BackgroundFetch extends AsyncTask<String, Integer, WeatherData> {
 
 			try {
 				if ((fetchStatus == DONE) && (weatherData != null)) {
+					WeatherData.newDataStatus = DONE;
 					JSONObject mainObj = weatherData.getJSONObject("main");
 					JSONArray weatherObj = weatherData.getJSONArray("weather");
 					returnData = new WeatherData(true,

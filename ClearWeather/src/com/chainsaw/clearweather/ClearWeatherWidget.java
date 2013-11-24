@@ -109,6 +109,8 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 				remote.setViewVisibility(R.id.timestamp, View.VISIBLE);
 				remote.setViewVisibility(R.id.loading, View.INVISIBLE);
 			} else {
+				remote.setTextViewText(R.id.weather, "couldn't get the data, sorry!");
+				
 				remote.setViewVisibility(R.id.temp, View.INVISIBLE);
 				remote.setViewVisibility(R.id.tempUnit, View.INVISIBLE);
 				remote.setViewVisibility(R.id.humidity, View.INVISIBLE);
@@ -231,8 +233,11 @@ public class ClearWeatherWidget extends AppWidgetProvider {
 		alarm = PendingIntent.getBroadcast(context, 0, callToAlarm,
 				PendingIntent.FLAG_CANCEL_CURRENT);
 		AlarmManager alarms = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+//		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()
+//				+ AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HOUR, alarm);
 		alarms.setInexactRepeating(AlarmManager.RTC, System.currentTimeMillis()
-				+ AlarmManager.INTERVAL_HALF_HOUR, AlarmManager.INTERVAL_HOUR, alarm);
+				+ 2000, 2000, alarm);
+
 	}
 
 	@Override
