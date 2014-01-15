@@ -20,13 +20,13 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-*/
-
+ */
 
 package com.chainsaw.clearweather;
 
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Locale;
 
 import org.json.JSONObject;
 
@@ -39,6 +39,7 @@ import android.widget.RemoteViews;
 public class OpenWeatherAPI {
 
 	String serviceURL = "http://api.openweathermap.org/data/2.5/weather?";
+	String LANG_PREFIX = "&lang=";
 	String API_KEY = "&APPID=3602ce9ed1ea7a9a94a18594b0893d05";
 	URL fetchRequest;
 	URLConnection serviceConnection;
@@ -79,13 +80,25 @@ public class OpenWeatherAPI {
 	}
 
 	void getData(Location location) {
-		if(location==null){
+		if (location == null) {
 			location = new Location("loc");
 			location.setLatitude(60.075);
 			location.setLongitude(12.643);
 		}
-			asyncLoader.execute(serviceURL + "lat=" + String.valueOf(location.getLatitude()) + "&"
-					+ "lon=" + String.valueOf(location.getLongitude()) + API_KEY);
+		String lang_code = Locale.getDefault().getLanguage();
+		if(lang_code.equals("es")){
+			lang_code="sp";
+		}
+		if(lang_code.equals("uk")){
+			lang_code="ua";
+		}
+		if(lang_code.equals("sv")){
+			lang_code="se";
+		}
+		
+		asyncLoader.execute(serviceURL + "lat=" + String.valueOf(location.getLatitude()) + "&"
+				+ "lon=" + String.valueOf(location.getLongitude()) + LANG_PREFIX + lang_code
+				+ API_KEY);
 	}
 
 	void setListener(WeatherDataListener li) {
