@@ -40,7 +40,7 @@ public class OpenWeatherAPI {
 
 	String serviceURL = "http://api.openweathermap.org/data/2.5/weather?";
 	String LANG_PREFIX = "&lang=";
-	String API_KEY = "&APPID=3602ce9ed1ea7a9a94a18594b0893d05";
+	String API_KEY = "API_KEY_REMOVED";
 	URL fetchRequest;
 	URLConnection serviceConnection;
 	JSONObject weatherData;
